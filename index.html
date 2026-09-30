@@ -6,110 +6,115 @@
   <title>Indicador Avanzado de Control y Costo de Horas Extra</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #0b132b; color: #ffffff; }
-    .card { background-color: #1c2541; border: 1px solid #2e3b5e; border-radius: 0.75rem; }
-    .header-bg { background: linear-gradient(90deg, #1d4ed8 0%, #0284c7 100%); }
+    body { font-family: 'Roboto', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+    .card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .header-banner { background-color: #0055b7; }
+    .sub-banner { background-color: #00a896; }
   </style>
 </head>
 <body class="p-4 md:p-6 min-h-screen">
 
-  <!-- Encabezado Principal -->
-  <header class="header-bg p-4 rounded-xl mb-6 shadow-lg flex flex-col md:flex-row justify-between items-center">
-    <h1 class="text-xl md:text-2xl font-extrabold tracking-wide text-white uppercase text-center md:text-left">
-      INDICADOR AVANZADO DE CONTROL Y COSTO DE HORAS EXTRA
-    </h1>
-    <span class="text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full mt-2 md:mt-0">LOCKER STUDIO / VERCEL</span>
-  </header>
+  <div class="max-w-[1600px] mx-auto space-y-4">
+    
+    <!-- Encabezado Looker Studio -->
+    <header class="header-banner text-white p-3 rounded-t-lg shadow flex justify-between items-center">
+      <h1 class="text-xl md:text-2xl font-black uppercase tracking-wide">
+        INDICADOR AVANZADO DE CONTROL Y COSTO DE HORAS EXTRA
+      </h1>
+      <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded">LOCKER STUDIO</span>
+    </header>
 
-  <!-- Barra de Filtros -->
-  <section class="card p-4 mb-6">
-    <p class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-3">Filtros e Interacción</p>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div>
-        <label class="block text-xs text-slate-300 mb-1">PROVEEDOR</label>
-        <select id="filter-proveedor" onchange="actualizarDashboard()" class="w-full bg-slate-800 text-white border border-slate-600 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500">
-          <option value="TODOS">Todos los Proveedores</option>
-        </select>
+    <!-- Barra de Filtros -->
+    <section class="sub-banner text-white p-3 rounded-b-lg shadow-sm">
+      <p class="text-xs font-bold uppercase tracking-wider mb-2">FILTROS E INTERACCIÓN</p>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-[11px] font-semibold uppercase mb-1">PROVEEDOR</label>
+          <select id="filter-proveedor" onchange="actualizarDashboard()" class="w-full bg-white text-slate-800 rounded p-1.5 text-xs font-medium focus:outline-none">
+            <option value="TODOS">Todos los Proveedores</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold uppercase mb-1">EMPLEADO</label>
+          <select id="filter-empleado" onchange="actualizarDashboard()" class="w-full bg-white text-slate-800 rounded p-1.5 text-xs font-medium focus:outline-none">
+            <option value="TODOS">Todos los Empleados</option>
+          </select>
+        </div>
+        <div class="md:col-span-2 flex items-end justify-end">
+          <button onclick="resetFiltros()" class="bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-1.5 rounded transition">
+            Limpiar Filtros
+          </button>
+        </div>
       </div>
-      <div>
-        <label class="block text-xs text-slate-300 mb-1">EMPLEADO</label>
-        <select id="filter-empleado" onchange="actualizarDashboard()" class="w-full bg-slate-800 text-white border border-slate-600 rounded-lg p-2 text-sm focus:outline-none focus:border-blue-500">
-          <option value="TODOS">Todos los Empleados</option>
-        </select>
-      </div>
-      <div class="flex items-center justify-end">
-        <button onclick="resetFiltros()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-lg font-semibold transition">
-          Limpiar Filtros
-        </button>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Panel Principal Grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Tablero Principal -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
-    <!-- COLUMNA IZQUIERDA: KPIs y Evolución -->
-    <div class="lg:col-span-2 space-y-6">
-      
-      <!-- Resumen Ejecutivo (KPIs) -->
-      <div class="card p-5">
-        <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-4">Resumen Ejecutivo y Tendencia</p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-          <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
-            <p class="text-xs text-slate-400 uppercase font-semibold">Total Horas Extra</p>
-            <p id="kpi-horas" class="text-3xl font-black text-white mt-1">0.0h</p>
+      <!-- Columna Izquierda (KPIs y Tendencia) -->
+      <div class="lg:col-span-8 space-y-4">
+        
+        <!-- KPIs -->
+        <div class="card p-4">
+          <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3">RESUMEN EJECUTIVO Y TENDENCIA</p>
+          <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+              <p class="text-[11px] font-bold text-slate-500 uppercase">TOTAL HORAS EXTRA</p>
+              <p id="kpi-horas" class="text-3xl font-black text-slate-800 mt-1">0.0h</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+              <p class="text-[11px] font-bold text-slate-500 uppercase">TOTAL COSTO EXTRAS (COP)</p>
+              <p id="kpi-costo" class="text-3xl font-black text-slate-900 mt-1">$0</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded border border-slate-200">
+              <p class="text-[11px] font-bold text-slate-500 uppercase">COSTO PROMEDIO / HORA</p>
+              <p id="kpi-promedio" class="text-3xl font-black text-slate-900 mt-1">$0</p>
+            </div>
           </div>
-          <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
-            <p class="text-xs text-slate-400 uppercase font-semibold">Total Costo Extras (COP)</p>
-            <p id="kpi-costo" class="text-3xl font-black text-emerald-400 mt-1">$0</p>
+        </div>
+
+        <!-- Gráfico de Evolución -->
+        <div class="card p-4">
+          <h2 class="text-xs font-bold text-slate-700 uppercase mb-3">EVOLUCIÓN SEGUIMIENTO DE HORAS EXTRAS Y COSTO</h2>
+          <div class="relative h-64">
+            <canvas id="chartEvolucion"></canvas>
           </div>
-          <div class="bg-slate-800/60 p-4 rounded-lg border border-slate-700">
-            <p class="text-xs text-slate-400 uppercase font-semibold">Costo Promedio / Hora</p>
-            <p id="kpi-promedio" class="text-3xl font-black text-blue-400 mt-1">$0</p>
+        </div>
+
+      </div>
+
+      <!-- Columna Derecha (Gráfico Rosca y Top Empleados) -->
+      <div class="lg:col-span-4 space-y-4">
+
+        <!-- Gráfico Rosca Proveedores -->
+        <div class="card p-4">
+          <h2 class="text-xs font-bold text-slate-700 uppercase mb-3">DISTRIBUCIÓN DE COSTOS POR PROVEEDOR</h2>
+          <div class="relative h-48 flex justify-center">
+            <canvas id="chartProveedor"></canvas>
           </div>
         </div>
-      </div>
 
-      <!-- Evolución de Horas y Costos (Gráfico de Líneas/Barras) -->
-      <div class="card p-5">
-        <h2 class="text-sm font-bold text-slate-200 mb-4">EVOLUCIÓN SEGUIMIENTO DE HORAS EXTRAS Y COSTO</h2>
-        <div class="relative h-64">
-          <canvas id="chartEvolucion"></canvas>
+        <!-- Tabla Top 5 Empleados -->
+        <div class="card p-4">
+          <h2 class="text-xs font-bold text-slate-700 uppercase mb-3">TOP EMPLEADOS CON MAYOR COSTO</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="text-slate-500 border-b border-slate-200 bg-slate-50">
+                  <th class="p-2 font-bold">NOMBRE</th>
+                  <th class="p-2 text-center font-bold">HORAS</th>
+                  <th class="p-2 text-right font-bold">COSTO (COP)</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-top-empleados" class="divide-y divide-slate-100">
+                <!-- Carga dinámica -->
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-    </div>
-
-    <!-- COLUMNA DERECHA: Desglose y Ranking -->
-    <div class="space-y-6">
-
-      <!-- Distribución por Proveedor (Gráfico de Rosca) -->
-      <div class="card p-5">
-        <h2 class="text-sm font-bold text-slate-200 mb-4">DISTRIBUCIÓN DE COSTOS POR PROVEEDOR</h2>
-        <div class="relative h-52 flex justify-center">
-          <canvas id="chartProveedor"></canvas>
-        </div>
-      </div>
-
-      <!-- Top 5 Empleados con Mayor Costo -->
-      <div class="card p-5">
-        <h2 class="text-sm font-bold text-slate-200 mb-3">TOP EMPLEADOS CON MAYOR COSTO</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead>
-              <tr class="text-slate-400 border-b border-slate-700">
-                <th class="pb-2 font-semibold">NOMBRE</th>
-                <th class="pb-2 text-center font-semibold">HORAS</th>
-                <th class="pb-2 text-right font-semibold">COSTO (COP)</th>
-              </tr> https://script.google.com/a/macros/kikes.com.co/s/AKfycbxMIbTSOMlmjLiA9038hJcPx6S1FkRGRyS1MREC5RwD2bETweef-2ndRsYrqPbqCFHN/exec
-            </thead>
-            <tbody id="tabla-top-empleados" class="divide-y divide-slate-800">
-              <!-- Carga Dinámica -->
-            </tbody>
-          </table>
-        </div>
       </div>
 
     </div>
@@ -117,8 +122,8 @@
   </div>
 
   <script>
-    // URL de tu Google Apps Script
-    const API_URL = "https://script.google.com/macros/s/AKfycbwqZ.../exec"; // Asegúrate de colocar tu URL completa aquí
+    // URL de Google Apps Script adjunta
+    const API_URL = "https://script.google.com/a/macros/kikes.com.co/s/AKfycbxMIbTSOMlmjLiA9038hJcPx6S1FkRGRyS1MREC5RwD2bETweef-2ndRsYrqPbqCFHN/exec";
 
     let rawData = [];
     let chartEvolucionInstance = null;
@@ -132,7 +137,7 @@
         poblarFiltros();
         actualizarDashboard();
       } catch (err) {
-        console.error("Error al cargar datos:", err);
+        console.error("Error al cargar los datos:", err);
       }
     }
 
@@ -141,14 +146,10 @@
       const empleados = [...new Set(rawData.map(d => d.empleado).filter(Boolean))];
 
       const selectProv = document.getElementById("filter-proveedor");
-      proveedores.forEach(p => {
-        selectProv.innerHTML += `<option value="${p}">${p}</option>`;
-      });
+      proveedores.forEach(p => { selectProv.innerHTML += `<option value="${p}">${p}</option>`; });
 
       const selectEmp = document.getElementById("filter-empleado");
-      empleados.forEach(e => {
-        selectEmp.innerHTML += `<option value="${e}">${e}</option>`;
-      });
+      empleados.forEach(e => { selectEmp.innerHTML += `<option value="${e}">${e}</option>`; });
     }
 
     function resetFiltros() {
@@ -167,7 +168,6 @@
         return cumpleProv && cumpleEmp;
       });
 
-      // Métrica KPIs
       let totalHoras = 0;
       let totalCosto = 0;
       const provMap = {};
@@ -195,12 +195,10 @@
         }
       });
 
-      // Render KPIs
       document.getElementById("kpi-horas").innerText = `${totalHoras.toFixed(1)}h`;
       document.getElementById("kpi-costo").innerText = `$${totalCosto.toLocaleString('es-CO')}`;
       document.getElementById("kpi-promedio").innerText = totalHoras > 0 ? `$${(totalCosto / totalHoras).toLocaleString('es-CO', {maximumFractionDigits: 0})}` : '$0';
 
-      // Render Tabla Top Empleados
       const topEmpleados = Object.entries(empMap)
         .map(([nombre, val]) => ({ nombre, ...val }))
         .sort((a, b) => b.costo - a.costo)
@@ -208,14 +206,13 @@
 
       const tbody = document.getElementById("tabla-top-empleados");
       tbody.innerHTML = topEmpleados.map(e => `
-        <tr class="hover:bg-slate-800/40">
-          <td class="py-2 font-medium text-slate-200">${e.nombre}</td>
-          <td class="py-2 text-center text-slate-300">${e.horas.toFixed(1)}h</td>
-          <td class="py-2 text-right font-bold text-emerald-400">$${e.costo.toLocaleString('es-CO')}</td>
+        <tr class="hover:bg-slate-50">
+          <td class="p-2 font-semibold text-slate-700">${e.nombre}</td>
+          <td class="p-2 text-center text-slate-600">${e.horas.toFixed(1)}h</td>
+          <td class="p-2 text-right font-bold text-emerald-600">$${e.costo.toLocaleString('es-CO')}</td>
         </tr>
       `).join('');
 
-      // Render Gráficos
       renderGraficoEvolucion(fechaMap);
       renderGraficoProveedor(provMap);
     }
@@ -236,17 +233,17 @@
             {
               label: "Costo ($)",
               data: costos,
-              backgroundColor: "#10b981",
+              backgroundColor: "#00a896",
               yAxisID: "yCosto"
             },
             {
               label: "Horas Extra",
               data: horas,
               type: "line",
-              borderColor: "#3b82f6",
-              backgroundColor: "#3b82f6",
+              borderColor: "#0055b7",
+              backgroundColor: "#0055b7",
               borderWidth: 2,
-              tension: 0.3,
+              tension: 0.2,
               yAxisID: "yHoras"
             }
           ]
@@ -254,11 +251,11 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#94a3b8' } } },
+          plugins: { legend: { position: 'top', labels: { font: { size: 10 } } } },
           scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
-            yHoras: { type: 'linear', position: 'left', ticks: { color: '#3b82f6' }, grid: { display: false } },
-            yCosto: { type: 'linear', position: 'right', ticks: { color: '#10b981' }, grid: { color: '#334155' } }
+            x: { grid: { display: false } },
+            yHoras: { type: 'linear', position: 'left', grid: { display: false } },
+            yCosto: { type: 'linear', position: 'right' }
           }
         }
       });
@@ -277,18 +274,17 @@
           labels: labels,
           datasets: [{
             data: data,
-            backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
+            backgroundColor: ["#0055b7", "#00a896", "#f59e0b", "#ef4444", "#6366f1"]
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } } }
+          plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } }
         }
       });
     }
 
-    // Inicializar
     cargarDatos();
   </script>
 </body>
