@@ -3,299 +3,302 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Indicador Avanzado de Control y Costo de Horas Extra</title>
+  <title>Transporte Interno - Control Horas Extras</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Roboto', sans-serif; background-color: #f1f5f9; color: #1e293b; }
-    .card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .header-banner { background-color: #0055b7; }
-    .sub-banner { background-color: #00a896; }
+    body { font-family: 'Open Sans', sans-serif; background-color: #f4f6f8; color: #333333; }
+    .sidebar-active { background-color: #22c55e; color: #ffffff; font-weight: 700; border-radius: 0.5rem; }
+    .kpi-card { background: #ffffff; border-radius: 0.75rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .btn-kikes { background-color: #16a34a; color: white; transition: all 0.2s; }
+    .btn-kikes:hover { background-color: #15803d; }
   </style>
 </head>
-<body class="p-4 md:p-6 min-h-screen">
+<body class="flex min-h-screen bg-[#f4f6f8]">
 
-  <div class="max-w-[1600px] mx-auto space-y-4">
-    
-    <!-- Encabezado -->
-    <header class="header-banner text-white p-3 rounded-t-lg shadow flex justify-between items-center">
-      <h1 class="text-xl md:text-2xl font-black uppercase tracking-wide">
-        INDICADOR AVANZADO DE CONTROL Y COSTO DE HORAS EXTRA
-      </h1>
-      <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded">LOCKER STUDIO</span>
+  <!-- MENÚ LATERAL (ESTILO HUEVOS KIKES) -->
+  <aside class="w-64 bg-white border-r border-gray-200 p-4 hidden md:flex flex-col justify-between">
+    <div>
+      <div class="mb-8">
+        <h1 class="text-xs font-black tracking-wider text-gray-800 uppercase">TRANSPORTE INTERNO</h1>
+        <p class="text-[11px] font-bold text-emerald-600 tracking-widest uppercase">HUEVOS KIKES</p>
+      </div>
+
+      <nav class="space-y-1 text-xs">
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <span>❖ Panel de control</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <span>🥚 Inventario huevo</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <span>🌾 Inventario alimento</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 sidebar-active">
+          <span>🌿 Control Horas Extras</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <span>🚛 Control Flota</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <span>📊 Nivel de Servicio</span>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-1 p-4 md:p-6 overflow-y-auto">
+
+    <!-- HEADER SUPERIOR CON FILTROS -->
+    <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+      <div>
+        <h2 class="text-lg font-bold text-gray-800 uppercase">CONTROL DE HORAS EXTRAS - ROBLE</h2>
+        <p class="text-xs text-gray-500">Consolidado Nómina Logística</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <div class="flex items-center gap-1 bg-white border border-gray-300 rounded px-2 py-1">
+          <span class="text-gray-500">Proveedor:</span>
+          <select id="filter-proveedor" onchange="actualizarDashboard()" class="font-semibold bg-transparent border-none outline-none">
+            <option value="TODOS">Todos los proveedores</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-1 bg-white border border-gray-300 rounded px-2 py-1">
+          <span class="text-gray-500">Empleado:</span>
+          <select id="filter-empleado" onchange="actualizarDashboard()" class="font-semibold bg-transparent border-none outline-none">
+            <option value="TODOS">Todos los empleados</option>
+          </select>
+        </div>
+
+        <button onclick="actualizarDashboard()" class="btn-kikes px-3 py-1.5 rounded font-bold flex items-center gap-1 shadow-sm">
+          🔄 Actualizar
+        </button>
+      </div>
     </header>
 
-    <!-- Barra de Filtros y Carga de Datos -->
-    <section class="sub-banner text-white p-3 rounded-b-lg shadow-sm">
-      <p class="text-xs font-bold uppercase tracking-wider mb-2">FILTROS E INTERACCIÓN</p>
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <label class="block text-[11px] font-semibold uppercase mb-1">PROVEEDOR</label>
-          <select id="filter-proveedor" onchange="actualizarDashboard()" class="w-full bg-white text-slate-800 rounded p-1.5 text-xs font-medium focus:outline-none">
-            <option value="TODOS">Todos los Proveedores</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-[11px] font-semibold uppercase mb-1">EMPLEADO</label>
-          <select id="filter-empleado" onchange="actualizarDashboard()" class="w-full bg-white text-slate-800 rounded p-1.5 text-xs font-medium focus:outline-none">
-            <option value="TODOS">Todos los Empleados</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-[11px] font-semibold uppercase mb-1">CARGAR ARCHIVO CSV (OPCIONAL)</label>
-          <input type="file" id="file-input" accept=".csv" class="w-full bg-white text-slate-800 rounded p-1 text-xs" />
-        </div>
-        <div class="flex items-end justify-end">
-          <button onclick="resetFiltros()" class="bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-1.5 rounded transition w-full md:w-auto">
-            Limpiar Filtros
-          </button>
-        </div>
+    <!-- TARJETAS DE INDICADORES (KPIs) -->
+    <section class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+      <div class="kpi-card p-4">
+        <p class="text-[10px] font-bold text-gray-400 uppercase">TOTAL HORAS EXTRA</p>
+        <p id="kpi-horas" class="text-2xl font-black text-emerald-600 mt-1">0.0 h</p>
+        <p class="text-[10px] text-gray-400">horas registradas</p>
+      </div>
+
+      <div class="kpi-card p-4">
+        <p class="text-[10px] font-bold text-gray-400 uppercase">COSTO TOTAL EXTRAS</p>
+        <p id="kpi-costo" class="text-2xl font-black text-gray-800 mt-1">$0</p>
+        <p class="text-[10px] text-gray-400">COP liquidados</p>
+      </div>
+
+      <div class="kpi-card p-4">
+        <p class="text-[10px] font-bold text-gray-400 uppercase">COSTO PROMEDIO / HORA</p>
+        <p id="kpi-promedio" class="text-2xl font-black text-emerald-600 mt-1">$0</p>
+        <p class="text-[10px] text-gray-400">COP/hora extra</p>
+      </div>
+
+      <div class="kpi-card p-4">
+        <p class="text-[10px] font-bold text-gray-400 uppercase">EMPLEADOS ACTIVOS</p>
+        <p id="kpi-empleados" class="text-2xl font-black text-gray-800 mt-1">0</p>
+        <p class="text-[10px] text-gray-400">personal registrado</p>
+      </div>
+
+      <div class="kpi-card p-4">
+        <p class="text-[10px] font-bold text-gray-400 uppercase">PROVEEDORES</p>
+        <p id="kpi-proveedores" class="text-2xl font-black text-red-600 mt-1">0</p>
+        <p class="text-[10px] text-gray-400">empresas asociadas</p>
       </div>
     </section>
 
-    <!-- Tablero Principal -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-
-      <!-- Columna Izquierda (KPIs y Evolución) -->
-      <div class="lg:col-span-8 space-y-4">
-        
-        <div class="card p-4">
-          <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3">RESUMEN EJECUTIVO Y TENDENCIA</p>
-          <div class="grid grid-cols-3 gap-4 text-center">
-            <div class="bg-slate-50 p-3 rounded border border-slate-200">
-              <p class="text-[11px] font-bold text-slate-500 uppercase">TOTAL HORAS EXTRA</p>
-              <p id="kpi-horas" class="text-3xl font-black text-slate-800 mt-1">0.0h</p>
-            </div>
-            <div class="bg-slate-50 p-3 rounded border border-slate-200">
-              <p class="text-[11px] font-bold text-slate-500 uppercase">TOTAL COSTO EXTRAS (COP)</p>
-              <p id="kpi-costo" class="text-3xl font-black text-slate-900 mt-1">$0</p>
-            </div>
-            <div class="bg-slate-50 p-3 rounded border border-slate-200">
-              <p class="text-[11px] font-bold text-slate-500 uppercase">COSTO PROMEDIO / HORA</p>
-              <p id="kpi-promedio" class="text-3xl font-black text-slate-900 mt-1">$0</p>
-            </div>
-          </div>
+    <!-- SECCIÓN DE GRÁFICAS -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+      
+      <!-- Evolución de Horas y Costos -->
+      <div class="lg:col-span-7 kpi-card p-4">
+        <h3 class="text-xs font-bold text-gray-700 uppercase mb-3">DISTRIBUCIÓN DE HORAS EXTRA Y TENDENCIA</h3>
+        <div class="relative h-60">
+          <canvas id="chartEvolucion"></canvas>
         </div>
-
-        <div class="card p-4">
-          <h2 class="text-xs font-bold text-slate-700 uppercase mb-3">EVOLUCIÓN SEGUIMIENTO DE HORAS EXTRAS Y COSTO</h2>
-          <div class="relative h-64">
-            <canvas id="chartEvolucion"></canvas>
-          </div>
-        </div>
-
       </div>
 
-      <!-- Columna Derecha (Rosca y Ranking) -->
-      <div class="lg:col-span-4 space-y-4">
-
-        <div class="card p-4">
-          <h2 class="text-xs font-bold text-slate-700 uppercase mb-3">DISTRIBUCIÓN DE COSTOS POR PROVEEDOR</h2>
-          <div class="relative h-48 flex justify-center">
-            <canvas id="chartProveedor"></canvas>
-          </div>
+      <!-- Distribución por Proveedor -->
+      <div class="lg:col-span-5 kpi-card p-4">
+        <h3 class="text-xs font-bold text-gray-700 uppercase mb-3">INDICADOR DE COSTO POR PROVEEDOR</h3>
+        <div class="relative h-60 flex justify-center items-center">
+          <canvas id="chartProveedor"></canvas>
         </div>
-
-        <div class="card p-4">
-          <h2 class="text-xs font-bold text-slate-700 uppercase mb-3">TOP EMPLEADOS CON MAYOR COSTO</h2>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead>
-                <tr class="text-slate-500 border-b border-slate-200 bg-slate-50">
-                  <th class="p-2 font-bold">NOMBRE</th>
-                  <th class="p-2 text-center font-bold">HORAS</th>
-                  <th class="p-2 text-right font-bold">COSTO (COP)</th>
-                </tr>
-              </thead>
-              <tbody id="tabla-top-empleados" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
 
-    </div>
+    </section>
 
-  </div>
+    <!-- DETALLE EN TABLA CORPORATIVA -->
+    <section class="kpi-card p-4">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-xs font-bold text-gray-800 uppercase">DETALLE DE REGISTROS - HORAS EXTRAS LOGÍSTICA</h3>
+        <span class="text-xs font-bold bg-emerald-600 text-white px-2.5 py-1 rounded">Excel Consolidado</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="bg-emerald-600 text-white font-bold">
+              <th class="p-2.5 rounded-l">Fecha</th>
+              <th class="p-2.5">Nombre y Apellido</th>
+              <th class="p-2.5 text-center">Ingreso</th>
+              <th class="p-2.5 text-center">Salida</th>
+              <th class="p-2.5 text-center">Horas Extra</th>
+              <th class="p-2.5">Proveedor</th>
+              <th class="p-2.5 text-right rounded-r">Valor Extras (COP)</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-detalle" class="divide-y divide-gray-100">
+            <!-- Carga de datos incrustados -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
 
   <script>
-    // Si tienes el enlace publicado CSV de Google Sheets, pégalo en esta variable:
-    const PUBLIC_SHEET_CSV_URL = ""; 
+    // BASE DE DATOS INCRUSTADA CON TUS DATOS REALES DE EXCEL
+    const rawData = [
+      { fecha: "16/09/2026", empleado: "Dionicio Bayona", ingreso: "6:00", salida: "14:00", horasExtra: 0.0, proveedor: "BGA", valorExtras: 0 },
+      { fecha: "16/09/2026", empleado: "Alfredo Salazar", ingreso: "8:00", salida: "17:30", horasExtra: 1.5, proveedor: "BGA", valorExtras: 15633 },
+      { fecha: "16/09/2026", empleado: "Juan Bautista", ingreso: "8:00", salida: "17:30", horasExtra: 1.5, proveedor: "BGA", valorExtras: 15633 },
+      { fecha: "16/09/2026", empleado: "Cristian Lopez", ingreso: "8:00", salida: "17:30", horasExtra: 1.5, proveedor: "DSL", valorExtras: 15633 },
+      { fecha: "16/09/2026", empleado: "Sebastian Aparicio", ingreso: "6:00", salida: "17:30", horasExtra: 3.5, proveedor: "DSL", valorExtras: 36477 },
+      { fecha: "16/09/2026", empleado: "Jhon Jimenez", ingreso: "6:00", salida: "17:30", horasExtra: 3.5, proveedor: "DSL", valorExtras: 36477 },
+      { fecha: "16/09/2026", empleado: "Helio Martinez", ingreso: "8:00", salida: "19:30", horasExtra: 3.5, proveedor: "Incubadora de Santander", valorExtras: 36477 },
+      { fecha: "17/09/2026", empleado: "Dionicio Bayona", ingreso: "6:00", salida: "16:00", horasExtra: 2.0, proveedor: "BGA", valorExtras: 20844 },
+      { fecha: "17/09/2026", empleado: "Alfredo Salazar", ingreso: "6:00", salida: "17:30", horasExtra: 3.5, proveedor: "BGA", valorExtras: 36477 },
+      { fecha: "17/09/2026", empleado: "Juan Bautista", ingreso: "8:00", salida: "16:30", horasExtra: 0.5, proveedor: "BGA", valorExtras: 5211 },
+      { fecha: "18/09/2026", empleado: "Dionicio Bayona", ingreso: "6:00", salida: "18:30", horasExtra: 2.5, proveedor: "BGA", valorExtras: 26055 },
+      { fecha: "18/09/2026", empleado: "Alfredo Salazar", ingreso: "8:00", salida: "18:30", horasExtra: 0.5, proveedor: "BGA", valorExtras: 5211 },
+      { fecha: "18/09/2026", empleado: "Juan Bautista", ingreso: "6:00", salida: "18:30", horasExtra: 2.5, proveedor: "BGA", valorExtras: 26055 },
+      { fecha: "18/09/2026", empleado: "Cristian Lopez", ingreso: "8:00", salida: "18:30", horasExtra: 0.5, proveedor: "DSL", valorExtras: 5211 },
+      { fecha: "18/09/2026", empleado: "Sebastian Aparicio", ingreso: "6:00", salida: "18:30", horasExtra: 2.5, proveedor: "DSL", valorExtras: 26055 },
+      { fecha: "18/09/2026", empleado: "Helio Martinez", ingreso: "8:00", salida: "19:40", horasExtra: 3.7, proveedor: "Incubadora de Santander", valorExtras: 38561 },
+      { fecha: "18/09/2026", empleado: "Arles Lopez", ingreso: "6:00", salida: "18:00", horasExtra: 4.0, proveedor: "Incubadora de Santander", valorExtras: 41688 },
+      { fecha: "19/09/2026", empleado: "Dionicio Bayona", ingreso: "6:00", salida: "18:00", horasExtra: 2.0, proveedor: "BGA", valorExtras: 20844 },
+      { fecha: "21/09/2026", empleado: "Alfredo Salazar", ingreso: "6:00", salida: "18:30", horasExtra: 4.5, proveedor: "BGA", valorExtras: 46899 },
+      { fecha: "21/09/2026", empleado: "Juan Bautista", ingreso: "6:00", salida: "18:30", horasExtra: 4.5, proveedor: "BGA", valorExtras: 46899 },
+      { fecha: "25/09/2026", empleado: "Cristian Lopez", ingreso: "6:00", salida: "19:00", horasExtra: 5.0, proveedor: "DSL", valorExtras: 52110 },
+      { fecha: "25/09/2026", empleado: "Sebastian Aparicio", ingreso: "6:00", salida: "19:00", horasExtra: 5.0, proveedor: "DSL", valorExtras: 52110 },
+      { fecha: "25/09/2026", empleado: "Omar Alonso Rivero", ingreso: "6:00", salida: "17:50", horasExtra: 3.5, proveedor: "DSL", valorExtras: 36477 }
+    ];
 
-    let rawData = [];
     let chartEvolucionInstance = null;
     let chartProveedorInstance = null;
 
-    document.getElementById('file-input').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          procesarYRenderizar(results.data);
-        }
-      });
-    });
+    function inicializarFiltros() {
+      const provs = [...new Set(rawData.map(d => d.proveedor))];
+      const emps = [...new Set(rawData.map(d => d.empleado))];
 
-    function cargarDatos() {
-      if (PUBLIC_SHEET_CSV_URL) {
-        Papa.parse(PUBLIC_SHEET_CSV_URL, {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: function(results) {
-            procesarYRenderizar(results.data);
-          }
-        });
-      }
-    }
+      const selProv = document.getElementById("filter-proveedor");
+      provs.forEach(p => selProv.innerHTML += `<option value="${p}">${p}</option>`);
 
-    function procesarYRenderizar(data) {
-      rawData = data.map(row => ({
-        fecha: row['Fecha'] || row['FECHA'] || '',
-        empleado: row['Nombre y Apellido'] || row['EMPLEADO'] || '',
-        horasExtra: parseFloat((row['Hora extra'] || '0').replace(',', '.')) || 0,
-        proveedor: row['PROVEEDOR'] || 'Sin Proveedor',
-        valorExtras: parseFloat((row['VALOR EXTRAS'] || '0').replace(/\./g, '').replace(',', '.')) || 0
-      }));
+      const selEmp = document.getElementById("filter-empleado");
+      emps.forEach(e => selEmp.innerHTML += `<option value="${e}">${e}</option>`);
 
-      poblarFiltros();
-      actualizarDashboard();
-    }
-
-    function poblarFiltros() {
-      const proveedores = [...new Set(rawData.map(d => d.proveedor).filter(Boolean))];
-      const empleados = [...new Set(rawData.map(d => d.empleado).filter(Boolean))];
-
-      const selectProv = document.getElementById("filter-proveedor");
-      selectProv.innerHTML = '<option value="TODOS">Todos los Proveedores</option>';
-      proveedores.forEach(p => { selectProv.innerHTML += `<option value="${p}">${p}</option>`; });
-
-      const selectEmp = document.getElementById("filter-empleado");
-      selectEmp.innerHTML = '<option value="TODOS">Todos los Empleados</option>';
-      empleados.forEach(e => { selectEmp.innerHTML += `<option value="${e}">${e}</option>`; });
-    }
-
-    function resetFiltros() {
-      document.getElementById("filter-proveedor").value = "TODOS";
-      document.getElementById("filter-empleado").value = "TODOS";
       actualizarDashboard();
     }
 
     function actualizarDashboard() {
-      const provFiltro = document.getElementById("filter-proveedor").value;
-      const empFiltro = document.getElementById("filter-empleado").value;
+      const pFiltro = document.getElementById("filter-proveedor").value;
+      const eFiltro = document.getElementById("filter-empleado").value;
 
       const filtrados = rawData.filter(d => {
-        const cumpleProv = provFiltro === "TODOS" || d.proveedor === provFiltro;
-        const cumpleEmp = empFiltro === "TODOS" || d.empleado === empFiltro;
-        return cumpleProv && cumpleEmp;
+        const cP = pFiltro === "TODOS" || d.proveedor === pFiltro;
+        const cE = eFiltro === "TODOS" || d.empleado === eFiltro;
+        return cP && cE;
       });
 
       let totalHoras = 0;
       let totalCosto = 0;
       const provMap = {};
-      const empMap = {};
       const fechaMap = {};
+      const empSet = new Set();
 
       filtrados.forEach(d => {
-        const h = d.horasExtra;
-        const c = d.valorExtras;
+        totalHoras += d.horasExtra;
+        totalCosto += d.valorExtras;
+        empSet.add(d.empleado);
 
-        totalHoras += h;
-        totalCosto += c;
-
-        if (d.proveedor) provMap[d.proveedor] = (provMap[d.proveedor] || 0) + c;
-        if (d.empleado) {
-          if (!empMap[d.empleado]) empMap[d.empleado] = { horas: 0, costo: 0 };
-          empMap[d.empleado].horas += h;
-          empMap[d.empleado].costo += c;
-        }
-
-        if (d.fecha) {
-          if (!fechaMap[d.fecha]) fechaMap[d.fecha] = { horas: 0, costo: 0 };
-          fechaMap[d.fecha].horas += h;
-          fechaMap[d.fecha].costo += c;
-        }
+        provMap[d.proveedor] = (provMap[d.proveedor] || 0) + d.valorExtras;
+        fechaMap[d.fecha] = (fechaMap[d.fecha] || 0) + d.horasExtra;
       });
 
-      document.getElementById("kpi-horas").innerText = `${totalHoras.toFixed(1)}h`;
+      // KPIs
+      document.getElementById("kpi-horas").innerText = `${totalHoras.toFixed(1)} h`;
       document.getElementById("kpi-costo").innerText = `$${Math.round(totalCosto).toLocaleString('es-CO')}`;
       document.getElementById("kpi-promedio").innerText = totalHoras > 0 ? `$${Math.round(totalCosto / totalHoras).toLocaleString('es-CO')}` : '$0';
+      document.getElementById("kpi-empleados").innerText = empSet.size;
+      document.getElementById("kpi-proveedores").innerText = Object.keys(provMap).length;
 
-      const topEmpleados = Object.entries(empMap)
-        .map(([nombre, val]) => ({ nombre, ...val }))
-        .sort((a, b) => b.costo - a.costo)
-        .slice(0, 5);
-
-      const tbody = document.getElementById("tabla-top-empleados");
-      tbody.innerHTML = topEmpleados.map(e => `
-        <tr class="hover:bg-slate-50">
-          <td class="p-2 font-semibold text-slate-700">${e.nombre}</td>
-          <td class="p-2 text-center text-slate-600">${e.horas.toFixed(1)}h</td>
-          <td class="p-2 text-right font-bold text-emerald-600">$${Math.round(e.costo).toLocaleString('es-CO')}</td>
+      // Tabla
+      const tbody = document.getElementById("tabla-detalle");
+      tbody.innerHTML = filtrados.map(d => `
+        <tr class="hover:bg-gray-50">
+          <td class="p-2.5 font-semibold text-gray-700">${d.fecha}</td>
+          <td class="p-2.5 text-gray-800 font-bold">${d.empleado}</td>
+          <td class="p-2.5 text-center text-gray-500">${d.ingreso}</td>
+          <td class="p-2.5 text-center text-gray-500">${d.salida}</td>
+          <td class="p-2.5 text-center font-bold text-emerald-600">${d.horasExtra.toFixed(1)}</td>
+          <td class="p-2.5 text-gray-600">${d.proveedor}</td>
+          <td class="p-2.5 text-right font-black text-gray-800">$${d.valorExtras.toLocaleString('es-CO')}</td>
         </tr>
       `).join('');
 
-      renderGraficoEvolucion(fechaMap);
-      renderGraficoProveedor(provMap);
+      renderGraficos(fechaMap, provMap);
     }
 
-    function renderGraficoEvolucion(fechaMap) {
-      const fechas = Object.keys(fechaMap).sort();
-      const horas = fechas.map(f => fechaMap[f].horas);
-      const costos = fechas.map(f => fechaMap[f].costo);
-
+    function renderGraficos(fechaMap, provMap) {
+      // Gráfico Barras
       if (chartEvolucionInstance) chartEvolucionInstance.destroy();
-
-      const ctx = document.getElementById("chartEvolucion").getContext("2d");
-      chartEvolucionInstance = new Chart(ctx, {
+      const ctx1 = document.getElementById("chartEvolucion").getContext("2d");
+      chartEvolucionInstance = new Chart(ctx1, {
         type: "bar",
         data: {
-          labels: fechas,
-          datasets: [
-            { label: "Costo ($)", data: costos, backgroundColor: "#00a896", yAxisID: "yCosto" },
-            { label: "Horas Extra", data: horas, type: "line", borderColor: "#0055b7", backgroundColor: "#0055b7", borderWidth: 2, tension: 0.2, yAxisID: "yHoras" }
-          ]
+          labels: Object.keys(fechaMap),
+          datasets: [{
+            label: "Horas Extra Registradas",
+            data: Object.values(fechaMap),
+            backgroundColor: "#dc2626",
+            borderRadius: 4
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: 'top', labels: { font: { size: 10 } } } },
-          scales: {
-            x: { grid: { display: false } },
-            yHoras: { type: 'linear', position: 'left', grid: { display: false } },
-            yCosto: { type: 'linear', position: 'right' }
-          }
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
         }
       });
-    }
 
-    function renderGraficoProveedor(provMap) {
-      const labels = Object.keys(provMap);
-      const data = Object.values(provMap);
-
+      // Gráfico Donut
       if (chartProveedorInstance) chartProveedorInstance.destroy();
-
-      const ctx = document.getElementById("chartProveedor").getContext("2d");
-      chartProveedorInstance = new Chart(ctx, {
+      const ctx2 = document.getElementById("chartProveedor").getContext("2d");
+      chartProveedorInstance = new Chart(ctx2, {
         type: "doughnut",
         data: {
-          labels: labels,
-          datasets: [{ data: data, backgroundColor: ["#0055b7", "#00a896", "#f59e0b", "#ef4444", "#6366f1"] }]
+          labels: Object.keys(provMap),
+          datasets: [{
+            data: Object.values(provMap),
+            backgroundColor: ["#16a34a", "#dc2626", "#2563eb", "#ca8a04"]
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } }
+          plugins: { legend: { position: "bottom" } }
         }
       });
     }
 
-    cargarDatos();
+    inicializarFiltros();
   </script>
 </body>
 </html>
