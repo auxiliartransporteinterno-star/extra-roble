@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indicador Avanzado de Horas Extra</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-6">
+  
+  <header class="mb-6 border-b border-slate-700 pb-4">
+    <h1 class="text-2xl font-bold text-blue-400">INDICADOR AVANZADO DE CONTROL Y COSTO DE HORAS EXTRA</h1>
+  </header>
+
+  <!-- Tarjetas KPI -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <p class="text-slate-400 text-sm">TOTAL HORAS EXTRA</p>
+      <p id="kpi-horas" class="text-3xl font-extrabold text-white">0.0 h</p>
+    </div>
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <p class="text-slate-400 text-sm">TOTAL COSTO EXTRAS (COP)</p>
+      <p id="kpi-costo" class="text-3xl font-extrabold text-emerald-400">$0</p>
+    </div>
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <p class="text-slate-400 text-sm">PROMEDIO / HORA</p>
+      <p id="kpi-promedio" class="text-3xl font-extrabold text-blue-400">$0</p>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <h2 class="text-md font-semibold mb-3">Evolución de Horas y Costos</h2>
+      <canvas id="chartEvolucion"></canvas>
+    </div>
+    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <h2 class="text-md font-semibold mb-3">Distribución por Proveedor</h2>
+      <canvas id="chartProveedor"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = https://script.google.com/a/macros/kikes.com.co/s/AKfycbxMIbTSOMlmjLiA9038hJcPx6S1FkRGRyS1MREC5RwD2bETweef-2ndRsYrqPbqCFHN/exec";
+
+    async function cargarDatos() {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+
+      let totalHoras = 0;
+      let totalCosto = 0;
+      const proveedores = {};
+
+      data.forEach(row => {
+        totalHoras += row.horasExtra;
+        totalCosto += row.valorExtras;
+
+        if (row.proveedor) {
+          proveedores[row.proveedor] = (proveedores[row.proveedor] || 0) + row.valorExtras;
+        }
+      });
+
+      // Actualizar KPIs
+      document.getElementById("kpi-horas").innerText = `${totalHoras.toFixed(1)} h`;
+      document.getElementById("kpi-costo").innerText = `$${totalCosto.toLocaleString('es-CO')}`;
+      document.getElementById("kpi-promedio").innerText = totalHoras > 0 ? `$${(totalCosto / totalHoras).toLocaleString('es-CO', {maximumFractionDigits: 0})}` : '$0';
+
+      // Gráfico Donut (Proveedores)
+      new Chart(document.getElementById('chartProveedor'), {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(proveedores),
+          datasets: [{
+            data: Object.values(proveedores),
+            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444']
+          }]
+        }
+      });
+    }
+
+    cargarDatos();
+  </script>
+</body>
+</html>
